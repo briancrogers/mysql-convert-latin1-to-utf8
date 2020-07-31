@@ -24,6 +24,9 @@
 // to the console.
 $pretend = true;
 
+// Mariadb 10.2.7 changes the quoting of COLUMN_DEFAULT
+$mariadb_10_2_7_column_default = true;
+
 // TODO: Should SET and ENUM columns be processed?
 $processEnums = false;
 
@@ -122,7 +125,11 @@ foreach ($tables as $table) {
 
         $colDefault = '';
         if ($col->COLUMN_DEFAULT !== null) {
-            $colDefault = "DEFAULT '{$col->COLUMN_DEFAULT}'";
+            if ($mariadb_10_2_7_column_default) {
+                $colDefault = "DEFAULT {$col->COLUMN_DEFAULT}";
+            } else {
+                $colDefault = "DEFAULT '{$col->COLUMN_DEFAULT}'";
+	    }
         }
 
         // Determine the target temporary BINARY type
